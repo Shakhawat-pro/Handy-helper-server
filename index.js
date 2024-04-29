@@ -35,6 +35,12 @@ async function run() {
         const result = await cursor.toArray();
         res.send(result)
     })
+    app.get('/spot/:id', async(req, res) => {
+        const id = req.params.id
+        const query = {_id: new ObjectId(id)}
+        const result = await spotCollection.findOne(query)
+        res.send(result)
+    })
 
     // add spots
     app.post('/spot', async(req, res)=>{
