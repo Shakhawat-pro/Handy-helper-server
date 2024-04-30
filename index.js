@@ -6,7 +6,15 @@ const app = express()
 const port = process.env.PORT || 5000;
 
 // middleware
-app.use(cors())
+// app.use (cors({
+//     origin:["http://localhost:5173/", "https://exploreasia-48971.web.app/"]
+// })) 
+
+app.use(cors({
+    origin: ["http://localhost:5173", "https://exploreasia-48971.web.app"],
+    methods: ["GET", "POST", "PUT", "DELETE"], // Specify the allowed HTTP methods
+    allowedHeaders: ["Content-Type", "Authorization"], // Specify the allowed request headers
+  }));
 app.use(express.json())
 
 
@@ -26,12 +34,12 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    client.connect();
 
     const spotCollection = client.db('touristsDB').collection('spots')
     const countryCollection = client.db('touristsDB').collection('country_Name')
 
-    app.get('/spot', async(req, res) =>{
+    app.get('/spots', async(req, res) =>{
         const cursor = spotCollection.find()
         const result = await cursor.toArray();
         res.send(result)
@@ -47,7 +55,7 @@ async function run() {
         const result = await countryCollection.findOne(query)
         res.send(result)
     })
-    app.get('/spot/:id', async(req, res) => {
+    app.get('/spots/:id', async(req, res) => {
         const id = req.params.id
         const query = {_id: new ObjectId(id)}
         const result = await spotCollection.findOne(query)
@@ -55,14 +63,14 @@ async function run() {
     })
 
     // add spots
-    app.post('/spot', async(req, res)=>{
+    app.post('/spots', async(req, res)=>{
         const newSpot = req.body;
         console.log(newSpot);
         const result = await spotCollection.insertOne(newSpot)
         res.send(result)
     })
 
-    app.put('/spot/:id', async(req, res) =>{
+    app.put('/spots/:id', async(req, res) =>{
         const id = req.params.id
         const updateSpot = req.body
         const filter = {_id: new ObjectId(id)}
@@ -86,7 +94,7 @@ async function run() {
         res.send(result)
     })
 
-    app.delete('/spot/:id', async(req, res)=>{
+    app.delete('/spots/:id', async(req, res)=>{
         const id = req.params.id
         const query = {_id: new ObjectId(id)}
         const result = await spotCollection.deleteOne(query)
